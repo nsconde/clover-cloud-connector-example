@@ -10,6 +10,13 @@
     "navigator": "*",
     "prototype": "*",
 
+    "fs": "*",
+    "path": "*",
+    "express": "*",
+    "body-parser": "*",
+    "https": "*",
+    "mkdirp": "*",
+
     "react": "*",
     "react-dom": "*",
     "react-modal": "*",
