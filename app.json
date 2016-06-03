@@ -1,5 +1,5 @@
 {
-  "name": "Clover Cloud Connector Example Server",
+  "name": "Clover Cloud Connector Example",
   "description": "Code from the Clover Cloud Connector Example",
   "keywords": [ "clover", "remote-pay", "example" ],
   "repository": "https://github.com/clover/clover-cloud-connector-example",
