@@ -1,0 +1,16 @@
+{
+  "elements" : [
+    {
+      "id": "dev1",
+      "url": "https://dev1.dev.clover.com/"
+    },
+    {
+      "id": "sandbox",
+      "url": "https://sandbox.dev.clover.com/"
+    },
+    {
+      "id": "sandboxdev",
+      "url": "https://sandboxdev.dev.clover.com/"
+    }
+  ]
+}
