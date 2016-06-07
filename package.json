@@ -1,6 +1,11 @@
 {
   "name":"clover-cloud-connector-example",
   "version":"0.0.1",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/clover/clover-cloud-connector-example"
+  },
   "dependencies": {
     "remote-pay-cloud-connector-configuration-react": "*",
     "jQuery": "*",
@@ -32,7 +37,9 @@
     "node": "5.9.1"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "echo \"Error: no test specified, \"$npm_package_version && exit 1",
+    "postinstall": "scripts/postinstall.sh",
+    "postinstallX": "browserify -t [ babelify --presets [ react ]  ] public/example-react-src.js -o public/example-react.js",
     "start": "node server.js"
   },
   "devDependencies": {}
