@@ -38,8 +38,8 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified, \"$npm_package_version && exit 1",
-    "postinstall": "scripts/postinstall.sh",
-    "postinstallX": "browserify -t [ babelify --presets [ react ]  ] public/example-react-src.js -o public/example-react.js",
+    "postinstallSH": "scripts/postinstall.sh",
+    "postinstall": "browserify -t [ babelify --presets [ react ]  ] public/example-react-src.js -o public/example-react.js",
     "start": "node server.js"
   },
   "devDependencies": {}
