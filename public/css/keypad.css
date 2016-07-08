@@ -1,0 +1,26 @@
+body {
+    /*text-align:center;*/
+    /*background-color:#333333;*/
+    font-family:Verdana, Arial, Helvetica, sans-serif;
+}
+#keypad {
+    margin:auto;
+}
+
+#keypad tr td {
+    vertical-align:middle;
+    text-align:center;
+    border:1px solid #000000;
+    font-size:18px;
+    font-weight:bold;
+    width:70px;
+    height:30px;
+    cursor:pointer;
+    /*background-color:#666666;*/
+    /*color:#CCCCCC;*/
+}
+#keypad tr td:hover {
+    background-color:#999999 !important;
+    /*color:#FFFF00;*/
+}
+
