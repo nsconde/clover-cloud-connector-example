@@ -18,12 +18,22 @@ const customStyles = {
     }
 };
 
+/**
+ * A simple class to transform values
+ */
 ValueTransformer = Class.create({
     getTransformedValue: function (baseValue) {
         return baseValue;
     }
 });
 
+/**
+ * Transforms currency into locale specific strings
+ *
+ * Defaults to "en", USD
+ *
+ * @type {ValueTransformer}
+ */
 CurrencyValueTransformer = Class.create(ValueTransformer, {
     /**
      * Initialize the values for this.
@@ -50,6 +60,11 @@ CurrencyValueTransformer = Class.create(ValueTransformer, {
         return formattedAmount;
     }
 });
+
+/**
+ * React visual component used to allow user entry of currency.
+ *
+ */
 var CurrencyInput = React.createClass({
     getDefaultProps: function () {
         return {
@@ -140,6 +155,11 @@ var CurrencyInput = React.createClass({
     }
 });
 
+
+/**
+ * React visual component used to allow user to click enter numbers, or use the keyboard
+ *
+ */
 var KeyPad = React.createClass({
     displayName: "KeyPad",
     getDefaultProps: function () {
@@ -267,7 +287,10 @@ var KeyPad = React.createClass({
     }
 });
 
-
+/**
+ * React visual component that ties together the display of entry to a keypad.
+ *
+ */
 var TenKey = React.createClass({
     displayName: "TenKey",
     sendKeyDownToKeypad: function(event) {
@@ -296,6 +319,9 @@ var TenKey = React.createClass({
     }
 });
 
+/**
+ * React visual component used for text entry.
+ */
 var TextEntry = React.createClass({
     displayName: "TextEntry",
     getDefaultProps: function () {
@@ -336,7 +362,11 @@ var TextEntry = React.createClass({
     }
 });
 
-
+/**
+ * React visual component that has the charge, refund, and display of
+ * tax and amount.
+ *
+ */
 var TransactionControl = React.createClass({
     displayName: "TransactionControl",
     getDefaultProps: function () {
@@ -373,14 +403,15 @@ var TransactionControl = React.createClass({
     },
 
     calculateTax: function() {
-        return Math.round(this.state.amount * this.state.tax);
+        var calculatedTax = 0;
+        if(this.state.taxCalculated) {
+            calculatedTax = Math.round(this.state.amount * this.state.tax);
+        }
+        return calculatedTax;
     },
 
     render: function render() {
-        var calculatedTax = 0;
-        if(this.state.taxCalculated) {
-            calculatedTax = this.calculateTax();
-        }
+        var calculatedTax = this.calculateTax();
         var formattedTax = this.props.valueTransformer.getTransformedValue(calculatedTax);
         var formattedAmount = this.props.valueTransformer.getTransformedValue(this.state.amount + calculatedTax);
         return (
@@ -392,13 +423,19 @@ var TransactionControl = React.createClass({
                   <span id="tctotal"> TOTAL: {formattedAmount}</span>
               </div>
               <div id="tcspacer"></div>
-              <KeyBoardButton id="refundButton" tabIndex="4" onClick={this.handleRefund} title="Refund" />
-              <KeyBoardButton id="chargeButton" tabIndex="5" onClick={this.handleCharge} title="Charge" />
+              <div id="transactionButtons">
+                <KeyBoardButton id="refundButton" tabIndex="4" onClick={this.handleRefund} title="Refund" />
+                <KeyBoardButton id="chargeButton" tabIndex="5" onClick={this.handleCharge} title="Charge" />
+              </div>
           </div>
         );
     }
 });
 
+/**
+ * React visual component that models a button.  Makes calling back on a click easier.
+ *
+ */
 var KeyBoardButton = React.createClass({
     displayName: "KeyBoardButton",
 
@@ -427,7 +464,12 @@ var KeyBoardButton = React.createClass({
     }
 });
 
-
+/**
+ * React visual component that ties everything to gether, and uses the
+ * ICloverConnector to invoke operations.  It has a ICloverConnectorListener that
+ * routes incoming messages.
+ *
+ */
 var ManualTransactionApp = React.createClass({
     displayName: "Sale",
 
@@ -449,38 +491,59 @@ var ManualTransactionApp = React.createClass({
     },
     handleRefund: function(amount, tax) {
         this.setState({showMessageDialog: true}, function(){
-            // Need to prompt for confirmation here.
-            // Once we get confirmation, need to put up a display that disables the controls
-            // and shows current progress.
-            if(this.props.cloverConnector){
-                var request = new clover.remotepay.ManualRefundRequest();
-                request.setAmount(amount+tax);
-                request.setExternalId(clover.CloverID.getNewId());
-                this.props.cloverConnector.manualRefund(request);
-            } else {
-                // need to let them know that we are not connected to a device.
-                console.error("handleRefund", "no cloverConnector is set");
+            try {
+                // Need to prompt for confirmation here?
+                if (this.props.cloverConnector) {
+                    var request = new clover.remotepay.ManualRefundRequest();
+                    request.setAmount(amount + tax);
+                    request.setExternalId(clover.CloverID.getNewId());
+                    this.props.cloverConnector.manualRefund(request);
+                } else {
+                    // need to let them know that we are not connected to a device.
+                    this.displayWithCloseButton("Cannot refund amount. No device is set!");
+                }
+                console.log("handleRefund", amount, tax, this.props.cloverConnector);
+            } catch(e) {
+                this.displayWithCloseButton(e['message'] ? e.message : "Error");
             }
-            console.log("handleRefund", amount, tax, this.props.cloverConnector);
         }.bind(this));
     },
 
     handleCharge: function(amount, tax) {
         this.setState({showMessageDialog: true}, function(){
-            // Need to prompt for confirmation here.
-            // Once we get confirmation, need to put up a display that disables the controls
-            // and shows current progress.
-            if(this.props.cloverConnector){
-                var request = new clover.remotepay.SaleRequest();
-                request.setAmount(amount+tax);
-                request.setExternalId(clover.CloverID.getNewId());
-                this.props.cloverConnector.sale(request);
-            } else {
-                // need to let them know that we are not connected to a device.
-                console.error("handleCharge", "no cloverConnector is set");
+            try {
+                if(this.props.cloverConnector){
+                    var request = new clover.remotepay.SaleRequest();
+                    request.setAmount(amount+tax);
+                    request.setExternalId(clover.CloverID.getNewId());
+                    this.props.cloverConnector.sale(request);
+                } else {
+                    // need to let them know that we are not connected to a device.
+                    this.displayWithCloseButton("Cannot charge amount. No device is set!");
+                }
+                console.log("handleCharge", amount, tax, this.props.cloverConnector);
+            } catch(e) {
+                this.displayWithCloseButton(e['message'] ? e.message : "Error");
             }
-            console.log("handleCharge", amount, tax, this.props.cloverConnector);
         }.bind(this));
+    },
+
+    /**
+     *
+     * @param message
+     */
+    displayWithCloseButton: function(message) {
+        var inputOptions = [];
+        var ok = new InputOption();
+        ok.setDescription("OK");
+        ok.isArtifical = true;
+        ok.setKeyPress(KeyPress.BUTTON_1);
+        ok.invokeCallback = function() {
+            this.closeDialog();
+        }.bind(this);
+        inputOptions.push(ok);
+
+        this.setMessage(message, inputOptions);
     },
 
     closeDialog: function() {
@@ -495,6 +558,9 @@ var ManualTransactionApp = React.createClass({
                 this.cloverConnectorListener = new ManualTransactionCloverConnectorListener(
                   this.props.cloverConnector, this);
             } else {
+                if(prevProps.cloverConnector !== null) {
+                    prevProps.cloverConnector.removeCloverConnectorListener(this.cloverConnectorListener);
+                }
                 this.props.cloverConnector.removeCloverConnectorListener(this.cloverConnectorListener);
                 this.cloverConnectorListener.setCloverConnector(this.props.cloverConnector);
             }
@@ -517,8 +583,7 @@ var ManualTransactionApp = React.createClass({
             // This is to allow for processing of messages that are outside the typical InputOption
             // parameters.
             io.invokeCallback(this);
-        }
-        if(this.props.cloverConnector) {
+        } else if(this.props.cloverConnector) {
             this.props.cloverConnector.invokeInputOption(io);
         }
     },
@@ -571,6 +636,10 @@ var ManualTransactionApp = React.createClass({
     }
 });
 
+/**
+ * React button that uses an {InputOption}
+ *
+ */
 var InputOptionButton = React.createClass({
     responseCallback: function() {
         if(this.props.responseCallback) {
@@ -586,6 +655,10 @@ var InputOptionButton = React.createClass({
     }
 });
 
+/**
+ * React component canvas for rendering
+ *
+ */
 var SignatureCanvas = React.createClass({
     componentDidMount: function() {
         this.updateCanvas(this.props.signature);
@@ -614,6 +687,11 @@ var SignatureCanvas = React.createClass({
     }
 });
 
+/**
+ * Used to display messages to the user during a transaction.
+ *
+ *
+ */
 var UIDialog = React.createClass({
     getDefaultProps: function () {
         return {
@@ -671,6 +749,11 @@ var UIDialog = React.createClass({
     }
 });
 
+/**
+ * The listener used in this app.
+ *
+ * @type {clover.remotepay.ICloverConnectorListener}
+ */
 var ManualTransactionCloverConnectorListener = Class.create( clover.remotepay.ICloverConnectorListener, {
     /**
      *
@@ -781,7 +864,7 @@ var ManualTransactionCloverConnectorListener = Class.create( clover.remotepay.IC
         inputOptions.push(reject);
 
         // for now, auto accept
-        this.messageDisplay.setMessage("Verify Signature",inputOptions,request.getSignature());
+        this.messageDisplay.setMessage("Verify Signature", inputOptions, request.getSignature());
     },
 
     /**
