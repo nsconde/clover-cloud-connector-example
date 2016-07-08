@@ -6,11 +6,6 @@
     "type": "git",
     "url": "https://github.com/clover/clover-cloud-connector-example"
   },
-  "peerDependencies": {
-    "react": "*",
-    "react-dom": "*",
-    "react-modal": "*"
-  },
   "dependencies": {
     "babel-preset-react": "*",
     "babelify": "*",
@@ -29,6 +24,9 @@
     "navigator": "*",
     "path": "*",
     "prototype": "*",
+    "react": "*",
+    "react-dom": "*",
+    "react-modal": "*",
     "react-key-handler": "*",
     "remote-pay-cloud": "*",
     "remote-pay-cloud-connector-configuration-react": "*",
