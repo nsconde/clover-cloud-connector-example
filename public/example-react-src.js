@@ -17,8 +17,10 @@ var currentWindowUrl = urlUtility.parse(window.location.href, true);
 
 // If the clientId is not specified on the url, it will default to the heroku app.
 var clientId = currentWindowUrl.query['clientId'] ? currentWindowUrl.query['clientId'] : "V1T1VKQC8Y65Y";
-// If the friendlyId is not specified on the url, it will default to a generated string
-var friendlyId = currentWindowUrl.query['friendlyId'] ? currentWindowUrl.query['friendlyId'] : "Code " + Math.floor(Math.random() * 1000000);
+// If the friendlyId is not specified on the url, it will default to a generated string.
+// This IS NOT the client id above!!!!  This represents the individual physical POS station.  For most implementations
+// it would be logical to make this a value like "Front Register", "Bar register", "Mobile unit 1", etc.
+var friendlyId = currentWindowUrl.query['friendlyId'] ? currentWindowUrl.query['friendlyId'] : "Client " + Math.floor(Math.random() * 1000000);
 
 // This gets the html element from the webpage to render onto.
 var appElement = document.getElementById('clover_manualtransaction_container');
@@ -36,7 +38,7 @@ var ConfiguredManualTransactionApp = React.createClass({
      */
     getInitialState: function () {
         // Close the connection cleanly on exit.  This should be done with all connectors.
-        $(window).on('beforeunload ', this.disposeOfResources.bind(this));
+        $(window).on('beforeunload ', this.disposeOfResources);
         return {
             cloverConnector: null
         }

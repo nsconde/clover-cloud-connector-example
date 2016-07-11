@@ -490,7 +490,7 @@ var ManualTransactionApp = React.createClass({
         this.refs.transactionControl.amountChanged(amount);
     },
     handleRefund: function(amount, tax) {
-        this.setState({showMessageDialog: true}, function(){
+        this.setState({cloverDeviceEvent: this.buildMessage("Refunding..."), showMessageDialog: true}, function(){
             try {
                 // Need to prompt for confirmation here?
                 if (this.props.cloverConnector) {
@@ -510,7 +510,7 @@ var ManualTransactionApp = React.createClass({
     },
 
     handleCharge: function(amount, tax) {
-        this.setState({showMessageDialog: true}, function(){
+        this.setState({cloverDeviceEvent: this.buildMessage("Charging..."), showMessageDialog: true}, function(){
             try {
                 if(this.props.cloverConnector){
                     var request = new clover.remotepay.SaleRequest();
@@ -544,6 +544,19 @@ var ManualTransactionApp = React.createClass({
         inputOptions.push(ok);
 
         this.setMessage(message, inputOptions);
+    },
+
+    /**
+     * Make a message without any buttons
+     * @param message
+     * @returns {*}
+     */
+    buildMessage: function(message) {
+        var inputOptions = [];
+        var fauxCloverDeviceEvent = new CloverDeviceEvent();
+        fauxCloverDeviceEvent.setMessage(message);
+        fauxCloverDeviceEvent.setInputOptions(inputOptions);
+        return fauxCloverDeviceEvent;
     },
 
     closeDialog: function() {
@@ -917,7 +930,7 @@ var ManualTransactionCloverConnectorListener = Class.create( clover.remotepay.IC
      * @return void
      */
     onDeviceError: function(deviceErrorEvent) {
-        this.displayWithCloseButton(JSON.stringify(deviceErrorEvent));
+        this.displayWithCloseButton(deviceErrorEvent.getMessage());
     },
 
     /**
