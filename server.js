@@ -48,6 +48,8 @@ app.get('/configuration/*', function (req, res) {
    console.log(__dirname);
    fs.readFile( __dirname + req.path, 'utf8', function (err, data) {
        console.log( data );
+       // Firefox will display error if this is missing
+       res.setHeader("Content-Type", 'application/json');
        res.end( data );
    });
 });
