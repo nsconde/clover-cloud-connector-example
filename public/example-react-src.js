@@ -75,6 +75,7 @@ var ConfiguredManualTransactionApp = React.createClass({
           <div>
               <ConfigureApp
                 clientId={this.props.clientId}      // the Clover app id
+                applicationId={this.props.applicationId} // the clover remote application id
                 friendlyId={this.props.friendlyId}  // the identification used when connecting to the device, and when persisting configuration
                 serverUrl={this.props.serverUrl}    // used to load available clover servers
                 configUrl={this.props.configUrl}    // used to load/save a selected configuration
@@ -112,6 +113,7 @@ var ConfiguredManualTransactionApp = React.createClass({
 ReactDOM.render(
   <ConfiguredManualTransactionApp
     clientId={clientId}             // the Clover app id
+    applicationId="com.clover.remotepay.cloud.example.app:0.0.1-beta1"
     friendlyId={friendlyId}         // the identification used when connecting to the device, and when persisting configuration
     serverUrl="./data/servers.json" // used to load available clover servers
     configUrl="./configuration/"    // used to load/save a selected configuration

@@ -1,4 +1,8 @@
-/public/built/example-react.js
+/docs
+/node_modules
 /.idea
-# Created by .ignore support plugin (hsz.mobi)
-/ideaConfig
+/*.iml
+.DS_Store
+/configuration/*
+/public/built/example-react.js
+/ideaConfig/
