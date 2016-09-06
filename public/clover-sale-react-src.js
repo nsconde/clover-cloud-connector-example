@@ -21,11 +21,11 @@ const customStyles = {
 /**
  * A simple class to transform values
  */
-ValueTransformer = Class.create({
-    getTransformedValue: function (baseValue) {
-        return baseValue;
-    }
-});
+ValueTransformer = function() {
+};
+ValueTransformer.prototype.getTransformedValue = function (baseValue) {
+    return baseValue;
+};
 
 /**
  * Transforms currency into locale specific strings
@@ -34,32 +34,29 @@ ValueTransformer = Class.create({
  *
  * @type {ValueTransformer}
  */
-CurrencyValueTransformer = Class.create(ValueTransformer, {
-    /**
-     * Initialize the values for this.
-     * @private
-     */
-    initialize: function (configuration) {
-        if (!configuration) {
-            configuration = {};
-        }
-        this.locale = configuration.locale ? configuration.locale : "en";
-        this.currency_props = configuration.currency_props ? configuration.currency_props : {
-            style: "currency",
-            currency: "USD"
-        };
-    },
-
-    /**
-     * Formats the value to a locale currency.
-     * @param {Number} baseValue - must be an integer
-     * @returns {string} the basevalue formatted to a currency
-     */
-    getTransformedValue: function (baseValue) {
-        var formattedAmount = (baseValue / 100).toLocaleString(this.locale, this.currency_props);
-        return formattedAmount;
+CurrencyValueTransformer = function (configuration) {
+    ValueTransformer.call(this, configuration);
+    if (!configuration) {
+        configuration = {};
     }
-});
+    this.locale = configuration.locale ? configuration.locale : "en";
+    this.currency_props = configuration.currency_props ? configuration.currency_props : {
+        style: "currency",
+        currency: "USD"
+    };
+};
+CurrencyValueTransformer.prototype = Object.create(ValueTransformer.prototype);
+CurrencyValueTransformer.prototype.constructor = CurrencyValueTransformer;
+
+/**
+ * Formats the value to a locale currency.
+ * @param {Number} baseValue - must be an integer
+ * @returns {string} the basevalue formatted to a currency
+ */
+CurrencyValueTransformer.prototype.getTransformedValue = function (baseValue) {
+    var formattedAmount = (baseValue / 100).toLocaleString(this.locale, this.currency_props);
+    return formattedAmount;
+};
 
 /**
  * React visual component used to allow user entry of currency.
@@ -553,7 +550,7 @@ var ManualTransactionApp = React.createClass({
      */
     buildMessage: function(message) {
         var inputOptions = [];
-        var fauxCloverDeviceEvent = new CloverDeviceEvent();
+        var fauxCloverDeviceEvent = new clover.remotepay.CloverDeviceEvent();
         fauxCloverDeviceEvent.setMessage(message);
         fauxCloverDeviceEvent.setInputOptions(inputOptions);
         return fauxCloverDeviceEvent;
@@ -603,7 +600,7 @@ var ManualTransactionApp = React.createClass({
 
     setMessage: function(message, inputOptions, signature) {
         // make an artificial CloverDeviceEvent and use it
-        var fauxCloverDeviceEvent = new CloverDeviceEvent();
+        var fauxCloverDeviceEvent = new clover.remotepay.CloverDeviceEvent();
         fauxCloverDeviceEvent.setMessage(message);
         fauxCloverDeviceEvent.setInputOptions(inputOptions);
         this.displayUIEvent(fauxCloverDeviceEvent, signature);
@@ -708,7 +705,7 @@ var SignatureCanvas = React.createClass({
 var UIDialog = React.createClass({
     getDefaultProps: function () {
         return {
-            cloverDeviceEvent: new CloverDeviceEvent(),
+            cloverDeviceEvent: new clover.remotepay.CloverDeviceEvent(),
             title: "",
             modalIsOpen: false
         }
@@ -767,196 +764,191 @@ var UIDialog = React.createClass({
  *
  * @type {clover.remotepay.ICloverConnectorListener}
  */
-var ManualTransactionCloverConnectorListener = Class.create( clover.remotepay.ICloverConnectorListener, {
-    /**
-     *
-     * @param {ICloverConnector} cloverConnector
-     */
-    initialize: function (cloverConnector, messageDisplay) {
-        this.messageDisplay = messageDisplay;
-        this.cloverConnector = cloverConnector;
+var ManualTransactionCloverConnectorListener = function (cloverConnector, messageDisplay) {
+    ICloverConnectorListener.call(this);
+    this.messageDisplay = messageDisplay;
+    this.cloverConnector = cloverConnector;
 
-        // This is used in the confirm payment handling.
-        this.challengeIndex = 0;
-    },
+    // This is used in the confirm payment handling.
+    this.challengeIndex = 0;
+};
 
-    setCloverConnector: function(cloverConnector) {
-        this.cloverConnector = cloverConnector;
-    },
+ManualTransactionCloverConnectorListener.prototype = Object.create(clover.remotepay.ICloverConnectorListener.prototype);
+ManualTransactionCloverConnectorListener.prototype.constructor = ManualTransactionCloverConnectorListener;
 
-    onConnected: function () {
-        this.messageDisplay.setMessage("Connection to device established.  " +
-          "Getting merchant configuration information...");
-    },
+ManualTransactionCloverConnectorListener.prototype.setCloverConnector = function (cloverConnector) {
+    this.cloverConnector = cloverConnector;
+};
 
-    /**
-     * @param {MerchantInfo} merchantInfo
-     * @return void
-     */
-    onReady: function (merchantInfo) {
-        this.messageDisplay.setMessage("Merchant configuration information retrieved.");
-    },
+ManualTransactionCloverConnectorListener.prototype.onConnected = function () {
+    this.messageDisplay.setMessage("Connection to device established.  " +
+      "Getting merchant configuration information...");
+};
 
-    onDisconnected: function () {
-        this.displayWithCloseButton("Device disconnected.");
-    },
+/**
+ * @param {MerchantInfo} merchantInfo
+ * @return void
+ */
+ManualTransactionCloverConnectorListener.prototype.onReady = function (merchantInfo) {
+    this.messageDisplay.setMessage("Merchant configuration information retrieved.");
+};
 
-    /**
-     *
-     * @param message
-     */
-    displayWithCloseButton: function(message) {
-        var inputOptions = [];
-        var ok = new InputOption();
-        ok.setDescription("OK");
-        ok.isArtifical = true;
-        ok.setKeyPress(KeyPress.BUTTON_1);
-        ok.invokeCallback = function(saleApp) {
-            this.messageDisplay.closeDialog();
-        }.bind(this);
-        inputOptions.push(ok);
+ManualTransactionCloverConnectorListener.prototype.onDisconnected = function () {
+    this.displayWithCloseButton("Device disconnected.");
+};
 
-        this.messageDisplay.setMessage(message, inputOptions);
-    },
+/**
+ *
+ * @param message
+ */
+ManualTransactionCloverConnectorListener.prototype.displayWithCloseButton = function (message) {
+    var inputOptions = [];
+    var ok = new InputOption();
+    ok.setDescription("OK");
+    ok.isArtifical = true;
+    ok.setKeyPress(KeyPress.BUTTON_1);
+    ok.invokeCallback = function (saleApp) {
+        this.messageDisplay.closeDialog();
+    }.bind(this);
+    inputOptions.push(ok);
 
-    /**
-     * Will be called at the completion of a manual refund request, with either a SUCCESS or CANCEL code. If successful, the ManualRefundResponse will have a Credit object associated with the relevant payment information.
-     * @param {ManualRefundResponse} response
-     * @return void
-     */
-    onManualRefundResponse: function(response) {
-        this.displayWithCloseButton(this.getDisplayBaseResponse("Refund", response));
-    },
+    this.messageDisplay.setMessage(message, inputOptions);
+};
 
-    /**
-     * Will be called, one or more times, at the completion of a sale transaction request, with either a SUCCESS or CANCEL code. A SUCCESS will also have the payment object. The payment object can be the full amount or partial amount of the sale request. Note: A sale transaction my come back as a tip adjustable auth, depending on the payment gateway. The SaleResponse has a boolean isSale to determine if it is final or will be finalized during closeout.
-     * @param {SaleResponse} response
-     * @return void
-     */
-    onSaleResponse: function(response) {
-        this.displayWithCloseButton(this.getDisplayBaseResponse("Sale", response));
-    },
+/**
+ * Will be called at the completion of a manual refund request, with either a SUCCESS or CANCEL code. If successful, the ManualRefundResponse will have a Credit object associated with the relevant payment information.
+ * @param {ManualRefundResponse} response
+ * @return void
+ */
+ManualTransactionCloverConnectorListener.prototype.onManualRefundResponse = function (response) {
+    this.displayWithCloseButton(this.getDisplayBaseResponse("Refund", response));
+};
 
-    /**
-     *
-     * @param {string} initialString - a string to append to
-     * @param {BaseResponse} response
-     */
-    getDisplayBaseResponse: function(formattedMessage, response) {
-        formattedMessage += " was " + (response.success ? "" : "not ") + "successful.\n";
-        if(response.getResult()) formattedMessage += "The response code was " + response.getResult() + "\n";
-        if(response.getReason()) formattedMessage += "The reason was " + response.getReason() + "\n";
-        if(response.getMessage())formattedMessage += "The message was " + response.getMessage() + "\n";
+/**
+ * Will be called, one or more times, at the completion of a sale transaction request, with either a SUCCESS or CANCEL code. A SUCCESS will also have the payment object. The payment object can be the full amount or partial amount of the sale request. Note: A sale transaction my come back as a tip adjustable auth, depending on the payment gateway. The SaleResponse has a boolean isSale to determine if it is final or will be finalized during closeout.
+ * @param {SaleResponse} response
+ * @return void
+ */
+ManualTransactionCloverConnectorListener.prototype.onSaleResponse = function (response) {
+    this.displayWithCloseButton(this.getDisplayBaseResponse("Sale", response));
+};
 
-        return formattedMessage;
-    },
+/**
+ *
+ * @param {string} initialString - a string to append to
+ * @param {BaseResponse} response
+ */
+ManualTransactionCloverConnectorListener.prototype.getDisplayBaseResponse = function (formattedMessage, response) {
+    formattedMessage += " was " + (response.success ? "" : "not ") + "successful.\n";
+    if (response.getResult()) formattedMessage += "The response code was " + response.getResult() + "\n";
+    if (response.getReason()) formattedMessage += "The reason was " + response.getReason() + "\n";
+    if (response.getMessage())formattedMessage += "The message was " + response.getMessage() + "\n";
 
-    /**
-     * Will be called, passing in the Payment and Signature, if the user provides an on-screen signature, that needs to be accepted or rejected for a payment.
-     * @param {VerifySignatureRequest} request
-     * @return void
-     */
-    onVerifySignatureRequest: function(request) {
-        var inputOptions = [];
-        var accept = new InputOption();
-        accept.setDescription("Accept");
-        accept.isArtifical = true;
-        accept.setKeyPress(KeyPress.BUTTON_1);
-        accept.invokeCallback = function(saleApp) {
-            saleApp.props.cloverConnector.acceptSignature(request);
-        }.bind(this);
-        inputOptions.push(accept);
+    return formattedMessage;
+};
 
-        var reject = new InputOption();
-        reject.setDescription("Reject");
-        reject.isArtifical = true;
-        reject.setKeyPress(KeyPress.BUTTON_2);
-        reject.invokeCallback = function(saleApp) {
-            saleApp.props.cloverConnector.rejectSignature(request);
-        }.bind(this);
-        inputOptions.push(reject);
+/**
+ * Will be called, passing in the Payment and Signature, if the user provides an on-screen signature, that needs to be accepted or rejected for a payment.
+ * @param {VerifySignatureRequest} request
+ * @return void
+ */
+ManualTransactionCloverConnectorListener.prototype.onVerifySignatureRequest = function (request) {
+    var inputOptions = [];
+    var accept = new InputOption();
+    accept.setDescription("Accept");
+    accept.isArtifical = true;
+    accept.setKeyPress(KeyPress.BUTTON_1);
+    accept.invokeCallback = function (saleApp) {
+        saleApp.props.cloverConnector.acceptSignature(request);
+    }.bind(this);
+    inputOptions.push(accept);
 
-        // for now, auto accept
-        this.messageDisplay.setMessage("Verify Signature", inputOptions, request.getSignature());
-    },
+    var reject = new InputOption();
+    reject.setDescription("Reject");
+    reject.isArtifical = true;
+    reject.setKeyPress(KeyPress.BUTTON_2);
+    reject.invokeCallback = function (saleApp) {
+        saleApp.props.cloverConnector.rejectSignature(request);
+    }.bind(this);
+    inputOptions.push(reject);
 
-    /**
-     * Will be called, passing in the Payment and Signature, if the user provides an on-screen signature, that needs to be accepted or rejected for a payment.
-     * @param {ConfirmPaymentRequest} request
-     * @return void
-     */
-    onConfirmPaymentRequest: function(request) {
-        var inputOptions = [];
-        var accept = new InputOption();
-        accept.setDescription("Accept");
-        accept.isArtifical = true;
-        accept.setKeyPress(KeyPress.BUTTON_1);
-        accept.invokeCallback = function(saleApp) {
-            // increment the counter and ...
-            this.challengeIndex++;
-            if(this.challengeIndex < request.getChallenges().length ) {
-                // ...More challenges, make a recursive call.
-                this.onConfirmPaymentRequest(request);
-            } else {
-                // ...all challenges have been accepted, accept the payment.
-                // Reset the challengeIndex
-                this.challengeIndex = 0;
-                saleApp.props.cloverConnector.acceptPayment(request.getPayment());
-            }
-        }.bind(this);
-        inputOptions.push(accept);
+    // for now, auto accept
+    this.messageDisplay.setMessage("Verify Signature", inputOptions, request.getSignature());
+};
 
-        var reject = new InputOption();
-        reject.setDescription("Reject");
-        reject.isArtifical = true;
-        reject.setKeyPress(KeyPress.BUTTON_2);
-        reject.invokeCallback = function(saleApp) {
-            // Any rejection makes the whole payment into a reject.
-            var rejectedChallenge = request.getChallenges()[this.challengeIndex];
+/**
+ * Will be called, passing in the Payment and Signature, if the user provides an on-screen signature, that needs to be accepted or rejected for a payment.
+ * @param {ConfirmPaymentRequest} request
+ * @return void
+ */
+ManualTransactionCloverConnectorListener.prototype.onConfirmPaymentRequest = function (request) {
+    var inputOptions = [];
+    var accept = new InputOption();
+    accept.setDescription("Accept");
+    accept.isArtifical = true;
+    accept.setKeyPress(KeyPress.BUTTON_1);
+    accept.invokeCallback = function (saleApp) {
+        // increment the counter and ...
+        this.challengeIndex++;
+        if (this.challengeIndex < request.getChallenges().length) {
+            // ...More challenges, make a recursive call.
+            this.onConfirmPaymentRequest(request);
+        } else {
+            // ...all challenges have been accepted, accept the payment.
             // Reset the challengeIndex
-            this.challengeIndex=0;
-            saleApp.props.cloverConnector.rejectPayment(request.getPayment(), rejectedChallenge);
-        }.bind(this);
-        inputOptions.push(reject);
+            this.challengeIndex = 0;
+            saleApp.props.cloverConnector.acceptPayment(request.getPayment());
+        }
+    }.bind(this);
+    inputOptions.push(accept);
 
-        var challenge = request.getChallenges()[this.challengeIndex];
-        this.messageDisplay.setMessage(challenge.getMessage(), inputOptions);
-        // this.cloverConnector.acceptPayment(request.getPayment());
-    },
+    var reject = new InputOption();
+    reject.setDescription("Reject");
+    reject.isArtifical = true;
+    reject.setKeyPress(KeyPress.BUTTON_2);
+    reject.invokeCallback = function (saleApp) {
+        // Any rejection makes the whole payment into a reject.
+        var rejectedChallenge = request.getChallenges()[this.challengeIndex];
+        // Reset the challengeIndex
+        this.challengeIndex = 0;
+        saleApp.props.cloverConnector.rejectPayment(request.getPayment(), rejectedChallenge);
+    }.bind(this);
+    inputOptions.push(reject);
 
-    /**
-     * Will be called when an error occurs when trying to send messages to the device
-     * @param {CloverDeviceErrorEvent} deviceErrorEvent
-     * @return void
-     */
-    onDeviceError: function(deviceErrorEvent) {
-        this.displayWithCloseButton(deviceErrorEvent.getMessage());
-    },
+    var challenge = request.getChallenges()[this.challengeIndex];
+    this.messageDisplay.setMessage(challenge.getMessage(), inputOptions);
+};
 
-    /**
-     * Will be called when leaving a screen or activity on the Mini.
-     * The CloverDeviceEvent passed in will contain an event type and description. Note: The Start and End events
-     * are not guaranteed to process in order, so the event type should be used to make sure the start and end events
-     * are paired.
-     * @param {CloverDeviceEvent} deviceEvent
-     * @return void
-     */
-    onDeviceActivityEnd: function(deviceEvent) {
-        // this.messageDisplay.setMessage(JSON.stringify(deviceEvent));
-    },
+/**
+ * Will be called when an error occurs when trying to send messages to the device
+ * @param {CloverDeviceErrorEvent} deviceErrorEvent
+ * @return void
+ */
+ManualTransactionCloverConnectorListener.prototype.onDeviceError = function (deviceErrorEvent) {
+    this.displayWithCloseButton(deviceErrorEvent.getMessage());
+};
 
-    /**
-     * Will be called when a screen or activity changes on the Mini. The CloverDeviceEvent passed in will contain
-     * an event type, a description and a list of available InputOptions.
-     * @param {CloverDeviceEvent} deviceEvent
-     * @return void
-     */
-    onDeviceActivityStart: function(deviceEvent) {
-        this.messageDisplay.displayUIEvent(deviceEvent);
-    }
-});
+/**
+ * Will be called when leaving a screen or activity on the Mini.
+ * The CloverDeviceEvent passed in will contain an event type and description. Note: The Start and End events
+ * are not guaranteed to process in order, so the event type should be used to make sure the start and end events
+ * are paired.
+ * @param {clover.remotepay.CloverDeviceEvent} deviceEvent
+ * @return void
+ */
+ManualTransactionCloverConnectorListener.prototype.onDeviceActivityEnd = function (deviceEvent) {
+    // this.messageDisplay.setMessage(JSON.stringify(deviceEvent));
+};
 
-
+/**
+ * Will be called when a screen or activity changes on the Mini. The CloverDeviceEvent passed in will contain
+ * an event type, a description and a list of available InputOptions.
+ * @param {clover.remotepay.CloverDeviceEvent} deviceEvent
+ * @return void
+ */
+ManualTransactionCloverConnectorListener.prototype.onDeviceActivityStart = function (deviceEvent) {
+    this.messageDisplay.displayUIEvent(deviceEvent);
+};
 
 //
 // Expose the module.
