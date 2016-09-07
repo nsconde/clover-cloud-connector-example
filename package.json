@@ -22,7 +22,6 @@
     "mkdirp": "*",
     "navigator": "*",
     "path": "*",
-    "prototype": "*",
     "react": "*",
     "react-dom": "*",
     "react-modal": "*",
