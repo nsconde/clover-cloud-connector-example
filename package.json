@@ -27,7 +27,7 @@
     "react-dom": "*",
     "react-modal": "*",
     "react-key-handler": "*",
-    "remote-pay-cloud": "*",
+    "remote-pay-cloud": "1.1.0-rc4.0",
     "remote-pay-cloud-connector-configuration-react": "*",
     "xmlhttprequest": "*"
   },
