@@ -531,7 +531,7 @@ var ManualTransactionApp = React.createClass({
      */
     displayWithCloseButton: function(message) {
         var inputOptions = [];
-        var ok = new InputOption();
+        var ok = new clover.remotepay.InputOption();
         ok.setDescription("OK");
         ok.isArtifical = true;
         ok.setKeyPress(KeyPress.BUTTON_1);
@@ -585,7 +585,7 @@ var ManualTransactionApp = React.createClass({
     },
 
     /**
-     * @param {InputOption} io
+     * @param {clover.remotepay.InputOption} io
      * @return void
      */
     sendInputOption: function(io) {
@@ -647,7 +647,7 @@ var ManualTransactionApp = React.createClass({
 });
 
 /**
- * React button that uses an {InputOption}
+ * React button that uses an {clover.remotepay.InputOption}
  *
  */
 var InputOptionButton = React.createClass({
@@ -765,7 +765,7 @@ var UIDialog = React.createClass({
  * @type {clover.remotepay.ICloverConnectorListener}
  */
 var ManualTransactionCloverConnectorListener = function (cloverConnector, messageDisplay) {
-    ICloverConnectorListener.call(this);
+    clover.remotepay.ICloverConnectorListener.call(this);
     this.messageDisplay = messageDisplay;
     this.cloverConnector = cloverConnector;
 
@@ -803,7 +803,7 @@ ManualTransactionCloverConnectorListener.prototype.onDisconnected = function () 
  */
 ManualTransactionCloverConnectorListener.prototype.displayWithCloseButton = function (message) {
     var inputOptions = [];
-    var ok = new InputOption();
+    var ok = new clover.remotepay.InputOption();
     ok.setDescription("OK");
     ok.isArtifical = true;
     ok.setKeyPress(KeyPress.BUTTON_1);
@@ -854,7 +854,7 @@ ManualTransactionCloverConnectorListener.prototype.getDisplayBaseResponse = func
  */
 ManualTransactionCloverConnectorListener.prototype.onVerifySignatureRequest = function (request) {
     var inputOptions = [];
-    var accept = new InputOption();
+    var accept = new clover.remotepay.InputOption();
     accept.setDescription("Accept");
     accept.isArtifical = true;
     accept.setKeyPress(KeyPress.BUTTON_1);
@@ -863,7 +863,7 @@ ManualTransactionCloverConnectorListener.prototype.onVerifySignatureRequest = fu
     }.bind(this);
     inputOptions.push(accept);
 
-    var reject = new InputOption();
+    var reject = new clover.remotepay.InputOption();
     reject.setDescription("Reject");
     reject.isArtifical = true;
     reject.setKeyPress(KeyPress.BUTTON_2);
@@ -883,7 +883,7 @@ ManualTransactionCloverConnectorListener.prototype.onVerifySignatureRequest = fu
  */
 ManualTransactionCloverConnectorListener.prototype.onConfirmPaymentRequest = function (request) {
     var inputOptions = [];
-    var accept = new InputOption();
+    var accept = new clover.remotepay.InputOption();
     accept.setDescription("Accept");
     accept.isArtifical = true;
     accept.setKeyPress(KeyPress.BUTTON_1);
@@ -902,7 +902,7 @@ ManualTransactionCloverConnectorListener.prototype.onConfirmPaymentRequest = fun
     }.bind(this);
     inputOptions.push(accept);
 
-    var reject = new InputOption();
+    var reject = new clover.remotepay.InputOption();
     reject.setDescription("Reject");
     reject.isArtifical = true;
     reject.setKeyPress(KeyPress.BUTTON_2);
