@@ -3,8 +3,6 @@ var ReactDOM = require('react-dom');
 var Modal = require('react-modal');
 var clover = require("remote-pay-cloud");
 
-require("prototype");
-
 BACKSPACE = 'Backspace';
 
 const customStyles = {
