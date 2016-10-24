@@ -15,6 +15,10 @@
     {
       "id": "sandboxdev",
       "url": "https://sandboxdev.dev.clover.com/"
+    },
+    {
+      "id": "localhost",
+      "url": "http://localhost:9000/"
     }
   ]
 }
