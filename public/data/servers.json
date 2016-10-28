@@ -17,6 +17,10 @@
       "url": "https://sandboxdev.dev.clover.com/"
     },
     {
+      "id": "production",
+      "url": "https://www.clover.com/"
+    },
+    {
       "id": "localhost",
       "url": "http://localhost:9000/"
     }
