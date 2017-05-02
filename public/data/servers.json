@@ -1,28 +1,8 @@
 {
   "elements" : [
     {
-      "id": "dev1",
-      "url": "https://dev1.dev.clover.com/"
-    },
-    {
-      "id": "staging1",
-      "url": "https://stg1.dev.clover.com/"
-    },
-    {
       "id": "sandbox",
       "url": "https://sandbox.dev.clover.com/"
-    },
-    {
-      "id": "sandboxdev",
-      "url": "https://sandboxdev.dev.clover.com/"
-    },
-    {
-      "id": "production",
-      "url": "https://www.clover.com/"
-    },
-    {
-      "id": "localhost",
-      "url": "http://localhost:9000/"
     }
   ]
 }
